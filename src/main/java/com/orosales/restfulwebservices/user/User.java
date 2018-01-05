@@ -2,6 +2,9 @@ package com.orosales.restfulwebservices.user;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 
@@ -9,8 +12,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description="All details about the users")
+@Entity
 public class User {
+	
+	@Id
+	@GeneratedValue
 	private Integer id;
+	
 	@Size(min = 2, message="The name should have at least 2 characters")
 	@ApiModelProperty(notes="The name should have at least 2 characters")
 	private String name;

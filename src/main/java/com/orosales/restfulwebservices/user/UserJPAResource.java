@@ -2,6 +2,7 @@ package com.orosales.restfulwebservices.user;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilderFactory.*;
@@ -18,30 +19,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+
 @RestController
-public class UserResource {
+public class UserJPAResource {
 
-	@Autowired
-	private UserDaoService service;
 	
+	@Autowired
+	private UserRepository userRepository;
 
-
-	@GetMapping("/users")
+	@GetMapping("/jpa/users")
 	public List<User> retrieveAllUsers() {
-		return service.findAll();
+		return userRepository.findAll();
 	}
 
-	@GetMapping("/users/{id}")
+	@GetMapping("/jpa/users/{id}")
 	public Resource<User> retrieveUser(@PathVariable int id) {
-		User user = service.findOne(id);
+		Optional<User> user = userRepository.findById(id);
 		
-		if (user==null)
+		if (!user.isPresent() )
 			throw new UserNotFoundException("id:"+id);
 		
 		//"all-users", SERVER_PATH - "/users"
 		//retrieveAllUsers
 		
-		Resource<User> resource = new Resource<User>(user);
+		Resource<User> resource = new Resource<User>(user.get());
 		
 		//linkTo( methodOn( this.getClass().retrieveAllUsers()  ) );
 		ControllerLinkBuilder linkTo = 	ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(this.getClass()).retrieveAllUsers() );
@@ -51,19 +52,17 @@ public class UserResource {
 	}
 
 	
-	@DeleteMapping("/users/{id}")
+	@DeleteMapping("/jpa/users/{id}")
 	public void deleteUser(@PathVariable int id) {
-		User user = service.deleteById(id);
+		userRepository.deleteById(id);
 		
-		if (user==null)
-			throw new UserNotFoundException("id:"+id);
 		
 	}
 	
 	// created
-	@PostMapping("/users")
+	@PostMapping("/jpa/users")
 	public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
-		User savedUser = service.saveUser(user);
+		User savedUser = userRepository.save(user);
 		//Created
 		// /users/{id}  savedUser.getId()
 		
